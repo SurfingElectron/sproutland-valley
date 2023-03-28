@@ -1,12 +1,10 @@
-# Pydew Valley
+# Sproutland Valley
 I'm currently learning Python through [Exercism](https://exercism.org/), but I've wanted to try out a few of the concepts in real project. Since I love computer games, and I LOVE Stardew Valley, using [Clear Code's](https://www.youtube.com/@ClearCode) tutorial, *Creating a Stardew Valley Inspired Game in Python*, seemed like a great chance to try a few things out.
 
 ## What did I learn?
-## Basic
-- **Debug:** Pygame's debug module essentially gives you the option of displaying console logs on the display surface instead of printing to the terminal. Handy!
 
-### More Advanced
-**Delta time (dt)**: Delta time is the difference between the current and previous frame. You can multiply any movement in the game by this number to make it run smoothly at any frame rate. Movement * Frame Rate * Delta Time = Apparent Movement
+#### **Delta time (dt)**
+Delta time is the difference between the current and previous frame. You can multiply any movement in the game by this number to make it run smoothly at any frame rate. Movement * Frame Rate * Delta Time = Apparent Movement
 
 |**Frames/Second**|**Pixels/Frame** |**Delta**        |**Pixels/Second**|
 |-----------------|-----------------|-----------------|-----------------|
@@ -16,7 +14,10 @@ I'm currently learning Python through [Exercism](https://exercism.org/), but I'v
 | 120             | 10              | 1/120 = 0.08    | 10              |
 | 600             | 10              | 1/600 = 0.002   | 10              |
 
-If used, *anything* which moves in the game will need delta time applied; animations, rotations, movements, etc. It also means larger numbers are involved (10 pixels / second is really slow, for example). But be careful, delta movements are floating point numbers and Pygame needs *integers* for placing rects because it's pixel information (no such thing as half a pixel), so with high frame rates where the delta is small, it will truncate (i.e. round down) and may be no movement if trunacated to 0.
+If used, *anything* which moves in the game will need delta time applied; animations, rotations, movements, etc. It also means larger numbers are involved (10 pixels / second is really slow, for example). But be careful, delta movements are floating point numbers and Pygame needs *integers* for placing rects because it's pixel information (no such thing as half a pixel). If you only store the position inside the rect, high frame rates can mean no movement as the rect truncates the floating point delta (to 0), so storing the position inside a unique variable is necessary.
+
+#### **Normalising a Vector**
+When considering player movement, if they press 2 keys at the same time (i.e. up and right), they will move faster than in just one direction (Pythagoras a^2 + b^2 = c^2). Pygame has an inbuilt method for doing this!
 
 ## Resources
 ### Documention and Guides
