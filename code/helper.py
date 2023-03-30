@@ -2,7 +2,6 @@
 import pygame
 from os import listdir
 
-
 # General helper functions
 def import_folder(import_path):
     surface_list = []
