@@ -1,4 +1,5 @@
 # IMPORTS
+import pygame
 
 # SCREEN
 SCREEN_WIDTH = 1280
