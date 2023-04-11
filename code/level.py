@@ -3,8 +3,9 @@ import pygame
 from settings import *
 from player import Player
 from overlay import Overlay
-from sprites import GenericSprite
-
+from sprites import GenericSprite, WaterSprite, WildflowerSprite, TreeSprite
+from pytmx.util_pygame import load_pygame
+from helper import *
 
 class Level:
     def __init__(self):
@@ -19,7 +20,38 @@ class Level:
         self.overlay = Overlay(self.player)
 
     def setup(self):
+        # TILE IMPORTS
+        tmx_data = load_pygame('../data/map.tmx')
+
+        # House (refactor me?)
+        for layer in ['HouseFloor', 'HouseFurnitureBottom']:
+            for x, y, surf in tmx_data.get_layer_by_name(layer).tiles():
+                GenericSprite((x * TILE_SIZE, y * TILE_SIZE), surf, self.all_sprites, LAYERS['house_bottom'])
+
+        for layer in ['HouseWalls', 'HouseFurnitureTop']:
+            for x, y, surf in tmx_data.get_layer_by_name(layer).tiles():
+                GenericSprite((x * TILE_SIZE, y * TILE_SIZE), surf, self.all_sprites, LAYERS['main'])
+
+        # Fence
+        for x, y, surf in tmx_data.get_layer_by_name('Fence').tiles():
+            GenericSprite((x * TILE_SIZE, y * TILE_SIZE), surf, self.all_sprites, LAYERS['main'])
+
+        # Water
+        water_frames = import_folder('../graphics/water')
+        for x, y, surf in tmx_data.get_layer_by_name('Water').tiles():
+            WaterSprite((x * TILE_SIZE, y * TILE_SIZE), water_frames, self.all_sprites)
+
+        # Trees
+        for obj in tmx_data.get_layer_by_name('Trees'):
+            TreeSprite((obj.x, obj.y), obj.image, self.all_sprites, obj.name)
+
+        # Wildflowers
+        for obj in tmx_data.get_layer_by_name('Decoration'):
+            WildflowerSprite((obj.x, obj.y), obj.image, self.all_sprites)
+        
+
         self.player = Player((640,360), self.all_sprites)
+
         GenericSprite(
             pos = (0,0), 
             surf = pygame.image.load('../graphics/world/ground.png').convert_alpha(), 
@@ -45,7 +77,8 @@ class CameraGroup(pygame.sprite.Group):
         self.offset.y = player.rect.centery - SCREEN_HEIGHT / 2
 
         for layer in LAYERS.values(): 
-            for sprite in self.sprites():
+            # sorted makes sure the player appears behind objects by using their y coordination as an order
+            for sprite in sorted(self.sprites(), key = lambda sprite: sprite.rect.centery):
                 if sprite.z_index == layer:
                     offset_rect = sprite.rect.copy() 
                     offset_rect.center -= self.offset
