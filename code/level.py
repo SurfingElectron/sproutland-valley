@@ -15,6 +15,7 @@ class Level:
 
         # Sprites
         self.all_sprites = CameraGroup()
+        self.collision_sprites = pygame.sprite.Group()
 
         self.setup()
         self.overlay = Overlay(self.player)
@@ -34,7 +35,7 @@ class Level:
 
         # Fence
         for x, y, surf in tmx_data.get_layer_by_name('Fence').tiles():
-            GenericSprite((x * TILE_SIZE, y * TILE_SIZE), surf, self.all_sprites, LAYERS['main'])
+            GenericSprite((x * TILE_SIZE, y * TILE_SIZE), surf, [self.all_sprites, self.collision_sprites], LAYERS['main'])
 
         # Water
         water_frames = import_folder('../graphics/water')
@@ -43,15 +44,22 @@ class Level:
 
         # Trees
         for obj in tmx_data.get_layer_by_name('Trees'):
-            TreeSprite((obj.x, obj.y), obj.image, self.all_sprites, obj.name)
+            TreeSprite((obj.x, obj.y), obj.image, [self.all_sprites, self.collision_sprites], obj.name)
 
         # Wildflowers
         for obj in tmx_data.get_layer_by_name('Decoration'):
-            WildflowerSprite((obj.x, obj.y), obj.image, self.all_sprites)
+            WildflowerSprite((obj.x, obj.y), obj.image, [self.all_sprites, self.collision_sprites])
+
+        # Map collision tiles
+        for x, y, surf in tmx_data.get_layer_by_name('Collision').tiles():
+            GenericSprite((x * TILE_SIZE, y * TILE_SIZE), pygame.Surface((TILE_SIZE, TILE_SIZE)), self.collision_sprites)
+            # by only including it in the collision_sprites group, it means the tiles are not rendered / updated
+            # which is fine because they're static on the map!
         
-
-        self.player = Player((640,360), self.all_sprites)
-
+        # Player
+        for obj in tmx_data.get_layer_by_name('Player'):
+            if obj.name == 'Start':
+                self.player = Player((obj.x, obj.y), self.all_sprites, self.collision_sprites)  
         GenericSprite(
             pos = (0,0), 
             surf = pygame.image.load('../graphics/world/ground.png').convert_alpha(), 
@@ -77,7 +85,7 @@ class CameraGroup(pygame.sprite.Group):
         self.offset.y = player.rect.centery - SCREEN_HEIGHT / 2
 
         for layer in LAYERS.values(): 
-            # sorted makes sure the player appears behind objects by using their y coordination as an order
+            # sorted makes the player appear behind objects by using their y coordinates to as a render order
             for sprite in sorted(self.sprites(), key = lambda sprite: sprite.rect.centery):
                 if sprite.z_index == layer:
                     offset_rect = sprite.rect.copy() 
