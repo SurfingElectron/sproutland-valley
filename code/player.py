@@ -6,8 +6,8 @@ from timekeeper import Timer
 
 # CLASS
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, group, collision_sprites):
-        super().__init__(group)
+    def __init__(self, pos, groups, collision_sprites, tree_sprites):
+        super().__init__(groups)
 
         # Graphics import / set-up
         self.import_assets()
@@ -24,10 +24,12 @@ class Player(pygame.sprite.Sprite):
         self.pos = pygame.math.Vector2(self.rect.center)
         self.speed = 200
 
-        # Collision
+        # Collisions
         self.hitbox = self.rect.copy().inflate((-126,-70))      
         self.collision_sprites = collision_sprites
 
+        # Interactions
+        self.tree_sprites = tree_sprites
 
         # Timers
         self.timers = {
@@ -167,15 +169,30 @@ class Player(pygame.sprite.Sprite):
         self.rect.centery = self.hitbox.centery
         self.collision('vertical')
     
+    def get_target_pos(self):
+        self.target_pos = self.rect.center + PLAYER_TOOL_OFFSET[self.status.split('_')[0]]
+        # Checks what direction the player is facing by using self.status, and applies the tool offset 
+        # which have the same names so this works!
+    
     def use_tool(self):
-        pass
+        if self.selected_tool == 'axe':
+            for tree in self.tree_sprites.sprites():
+               if tree.rect.collidepoint(self.target_pos):
+                   tree.damage()
+                   
+        if self.selected_tool == 'hoe':
+            pass
+    
+        if self.selected_tool == 'water':
+            pass
 
     def use_seed(self):
         pass
 
     def update(self, dt):
         self.input()
-        self.update_timers()
         self.get_status()
+        self.update_timers()
+        self.get_target_pos()
         self.move(dt)
         self.animate(dt)

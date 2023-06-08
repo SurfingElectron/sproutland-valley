@@ -1,7 +1,8 @@
 # IMPORTS
 import pygame
 from settings import *
-from random import randint
+from timekeeper import Timer
+from random import randint, choice
 
 class GenericSprite(pygame.sprite.Sprite):
     def __init__(self, pos, surf, groups, z_index = LAYERS['main']):
@@ -41,11 +42,28 @@ class TreeSprite(GenericSprite):
         # TreeSprite currently inherits the GenericSprite hitbox
         # - pretty big, do I want to change that?
 
+        # Tree Attributes
+        self.health = 5
+        self.alive = True
+        tree_stump_path = f'../graphics/stumps/{"small" if name == "Small" else "large"}.png'
+        self.tree_stump_surf = pygame.image.load(tree_stump_path).convert_alpha()
+        self.invul_timer = Timer(200)
+
         # Apples!
         self.apple_surf = pygame.image.load('../graphics/fruit/apple.png')
         self.apple_pos = APPLE_POS[name]
         self.apple_sprites = pygame.sprite.Group()
         self.create_apple()
+    
+    def damage(self):
+        # Damaging the tree
+        self.health -= 1
+
+        # Removing an apple
+        if len(self.apple_sprites.sprites()) > 0:
+            random_apple = choice(self.apple_sprites.sprites())
+            random_apple.kill()
+
 
     def create_apple(self):
         for pos in self.apple_pos:
