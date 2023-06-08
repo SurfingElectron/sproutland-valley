@@ -1,6 +1,7 @@
 # IMPORTS
 import pygame
 from settings import *
+from random import randint
 
 class GenericSprite(pygame.sprite.Sprite):
     def __init__(self, pos, surf, groups, z_index = LAYERS['main']):
@@ -37,7 +38,27 @@ class WaterSprite(GenericSprite):
 class TreeSprite(GenericSprite):
     def __init__(self, pos, surf, groups, name):
         super().__init__(pos, surf, groups)
-        # TreeSprite inherits the GenericSprite hitbox
+        # TreeSprite currently inherits the GenericSprite hitbox
+        # - pretty big, do I want to change that?
+
+        # Apples!
+        self.apple_surf = pygame.image.load('../graphics/fruit/apple.png')
+        self.apple_pos = APPLE_POS[name]
+        self.apple_sprites = pygame.sprite.Group()
+        self.create_apple()
+
+    def create_apple(self):
+        for pos in self.apple_pos:
+            if randint(0, 10) < 2:
+                x = pos[0] + self.rect.left
+                y = pos[1] + self.rect.top
+                GenericSprite(
+                    pos = (x,y), 
+                    surf = self.apple_surf, 
+                    groups = [self.apple_sprites, self.groups()[0]],
+                    z_index = LAYERS['fruit'])
+                # using self.groups[0] places it in the all_sprites group which isn't otherwise
+                # available here 
 
 class WildflowerSprite(GenericSprite):
     def __init__(self, pos, surf, groups):
