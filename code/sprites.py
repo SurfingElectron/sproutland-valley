@@ -13,6 +13,24 @@ class GenericSprite(pygame.sprite.Sprite):
         self.z_index = z_index
         self.hitbox = self.rect.copy().inflate(-self.rect.width * 0.2, -self.rect.height * 0.75)
 
+class Particle(GenericSprite):
+    def __init__(self, pos, surf, groups, z_index, duration = 200):
+        super().__init__(pos, surf, groups, z_index)#
+        self.start_time = pygame.time.get_ticks()
+        self.duration = duration
+
+        # White surface
+        mask_surf = pygame.mask.from_surface(self.image)
+        white_surf = mask_surf.to_surface()
+        white_surf.set_colorkey((0, 0, 0))
+        self.image = white_surf
+
+
+    def update(self, dt):
+        current_time = pygame.time.get_ticks()
+        if current_time - self.start_time > self.duration:
+            self.kill()
+
 class WaterSprite(GenericSprite):
     def __init__(self, pos, frames, groups):
 
@@ -75,6 +93,11 @@ class TreeSprite(GenericSprite):
         # Removing an apple
         if len(self.apple_sprites.sprites()) > 0:
             random_apple = choice(self.apple_sprites.sprites())
+            Particle(
+                pos = random_apple.rect.topleft, 
+                surf = random_apple.image, 
+                groups = self.groups()[0], 
+                z_index = LAYERS['fruit'])
             random_apple.kill()
     
     def is_dead(self):
@@ -87,7 +110,6 @@ class TreeSprite(GenericSprite):
     def update(self, dt):
         if self.alive:
             self.is_dead()
-
 
 class WildflowerSprite(GenericSprite):
     def __init__(self, pos, surf, groups):
