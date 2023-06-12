@@ -13,7 +13,7 @@ class GenericSprite(pygame.sprite.Sprite):
         self.z_index = z_index
         self.hitbox = self.rect.copy().inflate(-self.rect.width * 0.2, -self.rect.height * 0.75)
 
-class Particle(GenericSprite):
+class ParticleEffect(GenericSprite):
     def __init__(self, pos, surf, groups, z_index, duration = 200):
         super().__init__(pos, surf, groups, z_index)#
         self.start_time = pygame.time.get_ticks()
@@ -84,7 +84,7 @@ class TreeSprite(GenericSprite):
                     groups = [self.apple_sprites, self.groups()[0]],
                     z_index = LAYERS['fruit'])
                 # using self.groups[0] places it in the all_sprites group which isn't otherwise
-                # available here 
+                # available here - maybe declare it as an atribute early since we use it a few times?
    
     def damage(self):
         # Damaging the tree
@@ -93,7 +93,7 @@ class TreeSprite(GenericSprite):
         # Removing an apple
         if len(self.apple_sprites.sprites()) > 0:
             random_apple = choice(self.apple_sprites.sprites())
-            Particle(
+            ParticleEffect(
                 pos = random_apple.rect.topleft, 
                 surf = random_apple.image, 
                 groups = self.groups()[0], 
@@ -102,6 +102,12 @@ class TreeSprite(GenericSprite):
     
     def is_dead(self):
         if self.health <= 0:
+            ParticleEffect(
+                pos = self.rect.topleft, 
+                surf = self.image, 
+                groups = self.groups()[0], 
+                z_index = LAYERS['fruit'],
+                duration = 250)
             self.image = self.tree_stump_surf
             self.rect = self.image.get_rect(midbottom = self.rect.midbottom)
             self.hitbox = self.rect.copy().inflate(-10, -self.rect.height * 0.6)
