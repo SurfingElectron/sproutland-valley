@@ -54,16 +54,6 @@ class TreeSprite(GenericSprite):
         self.apple_pos = APPLE_POS[name]
         self.apple_sprites = pygame.sprite.Group()
         self.create_apple()
-    
-    def damage(self):
-        # Damaging the tree
-        self.health -= 1
-
-        # Removing an apple
-        if len(self.apple_sprites.sprites()) > 0:
-            random_apple = choice(self.apple_sprites.sprites())
-            random_apple.kill()
-
 
     def create_apple(self):
         for pos in self.apple_pos:
@@ -77,6 +67,27 @@ class TreeSprite(GenericSprite):
                     z_index = LAYERS['fruit'])
                 # using self.groups[0] places it in the all_sprites group which isn't otherwise
                 # available here 
+   
+    def damage(self):
+        # Damaging the tree
+        self.health -= 1
+
+        # Removing an apple
+        if len(self.apple_sprites.sprites()) > 0:
+            random_apple = choice(self.apple_sprites.sprites())
+            random_apple.kill()
+    
+    def is_dead(self):
+        if self.health <= 0:
+            self.image = self.tree_stump_surf
+            self.rect = self.image.get_rect(midbottom = self.rect.midbottom)
+            self.hitbox = self.rect.copy().inflate(-10, -self.rect.height * 0.6)
+            self.alive = False
+
+    def update(self, dt):
+        if self.alive:
+            self.is_dead()
+
 
 class WildflowerSprite(GenericSprite):
     def __init__(self, pos, surf, groups):

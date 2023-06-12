@@ -71,7 +71,6 @@ class Level:
             groups = self.all_sprites,
             z_index = LAYERS['ground'])
 
-
     def run(self, dt):
         self.display_surface.fill('black')
         self.all_sprites.custom_draw(self.player)

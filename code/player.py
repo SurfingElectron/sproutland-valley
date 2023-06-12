@@ -17,7 +17,8 @@ class Player(pygame.sprite.Sprite):
         # General setup
         self.image = self.animations[self.status][self.frame_index]
         self.rect = self.image.get_rect(center = pos)
-        self.z_index = LAYERS['main'] 
+        self.z_index = LAYERS['main']
+        self.target_pos = self.rect.center + PLAYER_TOOL_OFFSET[self.status.split('_')[0]] 
 
         # Movement setup / attributes
         self.direction = pygame.math.Vector2()
@@ -177,8 +178,9 @@ class Player(pygame.sprite.Sprite):
     def use_tool(self):
         if self.selected_tool == 'axe':
             for tree in self.tree_sprites.sprites():
-               if tree.rect.collidepoint(self.target_pos):
-                   tree.damage()
+                if tree.rect.collidepoint(self.target_pos):
+                    tree.damage()
+
                    
         if self.selected_tool == 'hoe':
             pass
