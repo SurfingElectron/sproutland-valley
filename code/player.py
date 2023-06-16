@@ -40,6 +40,14 @@ class Player(pygame.sprite.Sprite):
             'seed_switch': Timer(200)
         }
 
+        # Inventory
+        self.inventory = {
+            'wood':   0,
+            'apple':  0,
+            'corn':   0,
+            'tomato': 0
+        }
+
         # Tools
         self.tools = ['axe', 'hoe', 'water']
         self.tool_index = 0

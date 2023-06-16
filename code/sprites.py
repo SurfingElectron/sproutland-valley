@@ -55,7 +55,7 @@ class WaterSprite(GenericSprite):
         self.animate(dt)
 
 class TreeSprite(GenericSprite):
-    def __init__(self, pos, surf, groups, name):
+    def __init__(self, pos, surf, groups, name, player_inv_add):
         super().__init__(pos, surf, groups)
         # TreeSprite currently inherits the GenericSprite hitbox
         # - pretty big, do I want to change that?
@@ -72,6 +72,9 @@ class TreeSprite(GenericSprite):
         self.apple_pos = APPLE_POS[name]
         self.apple_sprites = pygame.sprite.Group()
         self.create_apple()
+
+        # Linking to inventory
+        self.player_inv_add = player_inv_add
 
     def create_apple(self):
         for pos in self.apple_pos:
@@ -98,6 +101,7 @@ class TreeSprite(GenericSprite):
                 surf = random_apple.image, 
                 groups = self.groups()[0], 
                 z_index = LAYERS['fruit'])
+            self.player_inv_add('apple')
             random_apple.kill()
     
     def is_dead(self):
@@ -108,6 +112,7 @@ class TreeSprite(GenericSprite):
                 groups = self.groups()[0], 
                 z_index = LAYERS['fruit'],
                 duration = 250)
+            self.player_inv_add('wood')
             self.image = self.tree_stump_surf
             self.rect = self.image.get_rect(midbottom = self.rect.midbottom)
             self.hitbox = self.rect.copy().inflate(-10, -self.rect.height * 0.6)
