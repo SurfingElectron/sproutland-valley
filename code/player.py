@@ -6,7 +6,7 @@ from timekeeper import Timer
 
 # CLASS
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, groups, collision_sprites, tree_sprites):
+    def __init__(self, pos, groups, collision_sprites, tree_sprites, interaction):
         super().__init__(groups)
 
         # Graphics import / set-up
@@ -31,6 +31,8 @@ class Player(pygame.sprite.Sprite):
 
         # Interactions
         self.tree_sprites = tree_sprites
+        self.interaction = interaction
+        self.sleep = False
 
         # Timers
         self.timers = {
@@ -79,8 +81,9 @@ class Player(pygame.sprite.Sprite):
     def input(self):
         keys = pygame.key.get_pressed()
 
-        # Movement and tool use only allowed if tool is not already in use
-        if not self.timers['tool_use'].active:
+        # Movement and tool use only allowed if tool is not already in use and awake
+        if not self.timers['tool_use'].active and not self.sleep:
+            
             # Movement
             if keys[pygame.K_w] or keys[pygame.K_UP]:
                 self.direction.y = -1
@@ -128,6 +131,16 @@ class Player(pygame.sprite.Sprite):
                 if self.seed_index >= len(self.seeds):
                     self.seed_index = 0
                 self.selected_seed = self.seeds[self.seed_index]
+
+            # Advance day / sleep
+            if keys[pygame.K_RETURN]:
+                collided_interation_sprite = pygame.sprite.spritecollide(self, self.interaction, False)
+                if collided_interation_sprite:
+                    if collided_interation_sprite[0].name == 'Trader':
+                        pass
+                    else:
+                        self.status = 'left_idle'
+                        self.sleep = True
 
     def update_timers(self):
         for timer in self.timers.values():

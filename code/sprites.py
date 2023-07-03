@@ -1,5 +1,6 @@
 # IMPORTS
 import pygame
+#from settings import LAYERS
 from settings import *
 from timekeeper import Timer
 from random import randint, choice
@@ -12,6 +13,14 @@ class GenericSprite(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft = pos)
         self.z_index = z_index
         self.hitbox = self.rect.copy().inflate(-self.rect.width * 0.2, -self.rect.height * 0.75)
+
+class Interaction(GenericSprite):
+    def __init__(self, pos, size, groups, name):
+        # No surfaces or z_index passed in because this surface is never visible to the player!
+        surf = pygame.Surface(size)
+        
+        super().__init__(pos, surf, groups)
+        self.name = name
 
 class ParticleEffect(GenericSprite):
     def __init__(self, pos, surf, groups, z_index, duration = 200):
