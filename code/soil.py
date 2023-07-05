@@ -10,3 +10,12 @@ class SoilLayer:
 
         # Graphics
         self.soil_surf = pygame.image.load('../graphics/soil/o.png')
+
+        self.create_soil_grid()
+    
+    def create_soil_grid(self):
+        ground = pygame.image.load('../graphics/world/ground.png')
+        h_tiles, v_tiles = ground.get_width() // TILE_SIZE, ground.get_height() // TILE_SIZE
+
+        self.grid = [[[] for col in range(h_tiles)] for row in range(v_tiles)]
+        print(self.grid)

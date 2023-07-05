@@ -7,6 +7,7 @@ from overlay import Overlay
 from sprites import Interaction, GenericSprite, WaterSprite, WildflowerSprite, TreeSprite
 from transition import Transition
 from helper import *
+from soil import SoilLayer
 
 class Level:
     def __init__(self):
@@ -23,6 +24,7 @@ class Level:
         self.setup()
         self.overlay = Overlay(self.player)
         self.transition = Transition(self.advance_day, self.player)
+        self.soil_layer = SoilLayer(self.all_sprites)
 
     def setup(self):
         # TILE IMPORTS
