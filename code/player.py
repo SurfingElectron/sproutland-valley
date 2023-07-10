@@ -6,7 +6,7 @@ from timekeeper import Timer
 
 # CLASS
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, groups, collision_sprites, tree_sprites, interaction):
+    def __init__(self, pos, groups, collision_sprites, tree_sprites, interaction, soil_layer):
         super().__init__(groups)
 
         # Graphics import / set-up
@@ -33,6 +33,7 @@ class Player(pygame.sprite.Sprite):
         self.tree_sprites = tree_sprites
         self.interaction = interaction
         self.sleep = False
+        self.soil_layer = soil_layer
 
         # Timers
         self.timers = {
@@ -204,7 +205,7 @@ class Player(pygame.sprite.Sprite):
 
                    
         if self.selected_tool == 'hoe':
-            pass
+            self.soil_layer.get_dig_hit(self.target_pos)
     
         if self.selected_tool == 'water':
             pass
