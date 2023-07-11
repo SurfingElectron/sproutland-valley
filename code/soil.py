@@ -6,6 +6,12 @@ from settings import *
 # F: farmable
 # T: tilled (has been dug by hoe)
 
+class SoilTile(pygame.sprite.Sprite):
+    def __init__(self, pos, surf, groups):
+        super().__init__(groups)
+        self.image = surf
+        self.rect = self.image.get_rect(topleft = pos)
+        self.z_index = LAYERS['soil'] 
 
 class SoilLayer:
     def __init__(self, all_sprites):
@@ -53,4 +59,10 @@ class SoilLayer:
         self.soil_sprites.empty()
         for index_row, row in enumerate(self.grid):
             for index_col, cell in enumerate(row):
-                if 'T' in cell
+                if 'T' in cell:
+                    x = index_col * TILE_SIZE
+                    y = index_row * TILE_SIZE
+                    SoilTile(
+                        pos = (x, y), 
+                        surf = self.soil_surf, 
+                        groups = [self.all_sprites, self.soil_sprites])
