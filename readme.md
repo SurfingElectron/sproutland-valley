@@ -39,6 +39,9 @@ When considering player movement, if they press 2 keys at the same time (i.e. up
 ## Challenges
 - **os.walk():** First time trying to use this! In helper.py, I tried to use this to import images. I got really stuck for a while as it simply wasn't executing; I checked everything else worked, but the loop using *walk* simply wasn't executing. After lots of googling, it turned out to be a really simple issue; I was executing the code from the wrong directory, and so the relative paths weren't working. A quick cd into code and everything ran perfectly. On the upside, in searching for a solution, I also learnt about listdir(), which is a neater way of getting the same information and cut down the need for an extra *for* loop.
 
+## Improvements
+- **Tiling System:** The soil tiling system (in soil.py | create_soil_tiles) currently doesn't check on the diagnonal, so there's a few graphical glitches when creating large areas of tilled soil. 
+
 ## Other Thoughts
 - **Make a plan:** With such a big project, it really showed the value of going step-by-step, thinking about what you would need in the future and building each component at a time (and testing to make sure that small part worked!).
 
