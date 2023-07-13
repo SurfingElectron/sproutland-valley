@@ -202,13 +202,12 @@ class Player(pygame.sprite.Sprite):
             for tree in self.tree_sprites.sprites():
                 if tree.rect.collidepoint(self.target_pos):
                     tree.damage()
-
                    
         if self.selected_tool == 'hoe':
             self.soil_layer.get_dig_hit(self.target_pos)
     
         if self.selected_tool == 'water':
-            pass
+            self.soil_layer.water_soil(self.target_pos)
 
     def use_seed(self):
         pass

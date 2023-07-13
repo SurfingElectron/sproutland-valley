@@ -1,11 +1,13 @@
 import pygame
 from pytmx.util_pygame import load_pygame
+from random import choice
 from helper import *
 from settings import *
 
 # SOIL GRID KEYS
 # F: farmable
 # T: tilled (has been dug by hoe)
+# W: watered
 
 class SoilTile(pygame.sprite.Sprite):
     def __init__(self, pos, surf, groups):
@@ -14,16 +16,24 @@ class SoilTile(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft = pos)
         self.z_index = LAYERS['soil'] 
 
+class WateredTile(pygame.sprite.Sprite):
+    def __init__(self, pos, surf, groups):
+        super().__init__(groups)
+        self.image = surf
+        self.rect = self.image.get_rect(topleft = pos)
+        self.z_index = LAYERS['soil_water']
+
 class SoilLayer:
     def __init__(self, all_sprites):
         
         # Sprite Groups
         self.all_sprites = all_sprites
         self.soil_sprites = pygame.sprite.Group()
+        self.watered_sprites = pygame.sprite.Group()
 
         # Graphics
-        self.soil_surf = pygame.image.load('../graphics/soil/o.png')
-        self.soil_surfaces = import_folder_dict('../graphics/soil/')
+        self.soil_surfs = import_folder_dict('../graphics/soil/')
+        self.watered_surfs = import_folder('../graphics/soil_water/')
 
         self.create_soil_grid()
         self.create_dig_rects()
@@ -33,6 +43,7 @@ class SoilLayer:
         h_tiles, v_tiles = ground.get_width() // TILE_SIZE, ground.get_height() // TILE_SIZE
 
         self.grid = [[[] for col in range(h_tiles)] for row in range(v_tiles)]
+        
         # Load the Tiled data, mark farmable tiles with an F
         for x, y, _ in load_pygame('../data/map.tmx').get_layer_by_name('Farmable').tiles():
             self.grid[y][x].append('F')
@@ -47,16 +58,42 @@ class SoilLayer:
                     rect = pygame.Rect(x, y, TILE_SIZE, TILE_SIZE)
                     self.dig_rects.append(rect)
 
-    def get_dig_hit(self, point):
+    def get_dig_hit(self, target_pos):
         for rect in self.dig_rects:
-            if rect.collidepoint(point):
+            if rect.collidepoint(target_pos):
                 x = rect.x // TILE_SIZE
                 y = rect.y // TILE_SIZE
 
                 if 'F' in self.grid[y][x]:
                     self.grid[y][x].append('T')
                     self.create_soil_tiles()
-    
+
+    def water_soil(self, target_pos):
+        for soil_sprite in self.soil_sprites.sprites():
+            if soil_sprite.rect.collidepoint(target_pos):
+                # Update the soil grid to mark tile as watered
+                x = soil_sprite.rect.x // TILE_SIZE
+                y = soil_sprite.rect.y // TILE_SIZE
+                self.grid[y][x].append('W')
+
+                # Show the tile as watered
+                WateredTile(
+                    pos = soil_sprite.rect.topleft,
+                    surf = choice(self.watered_surfs),
+                    groups = [self.all_sprites, self.watered_sprites]
+                )
+
+    def dry_soil(self):
+        # Destroy all the watered sprites
+        for sprite in self.watered_sprites.sprites():
+            sprite.kill()
+        
+        # Update the soil grid so nothing is marked as watered
+        for row in self.grid:
+            for cell in row:
+                if 'W' in cell:
+                    cell.remove('W')
+
     def create_soil_tiles(self):
         # Gets rid of all soil tiles and redraws them
         # So that the tilled soil looks like a continuous patch and not individual tiles
@@ -100,8 +137,7 @@ class SoilLayer:
                     if all((t_nb, r_nb, l_nb)) and not b_nb: tile_type = 'lrb'
                     if all((r_nb, b_nb, l_nb)) and not t_nb: tile_type = 'lrt'
 
-
                     SoilTile(
                         pos = (x, y), 
-                        surf = self.soil_surfaces[tile_type], 
+                        surf = self.soil_surfs[tile_type], 
                         groups = [self.all_sprites, self.soil_sprites])

@@ -24,8 +24,7 @@ class Level:
         self.soil_layer = SoilLayer(self.all_sprites)
         self.setup()
         self.overlay = Overlay(self.player)
-        self.transition = Transition(self.advance_day, self.player)
-        
+        self.transition = Transition(self.advance_day, self.player)      
 
     def setup(self):
         # TILE IMPORTS
@@ -97,6 +96,9 @@ class Level:
 
     def advance_day(self):
 
+        # Watered soil dries out
+        self.soil_layer.dry_soil()       
+        
         # Trees grow new apples
         for tree in self.tree_sprites.sprites():
             for apple in tree.apple_sprites.sprites():
