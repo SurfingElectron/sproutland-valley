@@ -207,7 +207,7 @@ class Player(pygame.sprite.Sprite):
             self.soil_layer.get_dig_hit(self.target_pos)
     
         if self.selected_tool == 'water':
-            self.soil_layer.water_soil(self.target_pos)
+            self.soil_layer.water_single_tile(self.target_pos)
 
     def use_seed(self):
         pass

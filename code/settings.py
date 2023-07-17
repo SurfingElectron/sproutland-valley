@@ -18,13 +18,13 @@ LAYERS = {
 	'ground': 1,
 	'soil': 2,
 	'soil_water': 3,
-	'rain_floor': 4,
+	'rain_ground': 4,
 	'house_bottom': 5,
 	'ground_plant': 6,
 	'main': 7,
 	'house_top': 8,
 	'fruit': 9,
-	'raindrops': 10
+	'rain_drops': 10
 }
 
 # APPLE POSITION DICTIONARIES

@@ -24,7 +24,7 @@ class Interaction(GenericSprite):
 
 class ParticleEffect(GenericSprite):
     def __init__(self, pos, surf, groups, z_index, duration = 200):
-        super().__init__(pos, surf, groups, z_index)#
+        super().__init__(pos, surf, groups, z_index)
         self.start_time = pygame.time.get_ticks()
         self.duration = duration
 

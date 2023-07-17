@@ -68,7 +68,10 @@ class SoilLayer:
                     self.grid[y][x].append('T')
                     self.create_soil_tiles()
 
-    def water_soil(self, target_pos):
+                    if self.is_raining:
+                        self.water_all_tiles()
+
+    def water_single_tile(self, target_pos):
         for soil_sprite in self.soil_sprites.sprites():
             if soil_sprite.rect.collidepoint(target_pos):
                 # Update the soil grid to mark tile as watered
@@ -81,7 +84,22 @@ class SoilLayer:
                     pos = soil_sprite.rect.topleft,
                     surf = choice(self.watered_surfs),
                     groups = [self.all_sprites, self.watered_sprites]
-                )
+                    )
+
+    def water_all_tiles(self):
+        for index_row, row in enumerate(self.grid):
+            for index_col, cell in enumerate(row):
+                if 'T' in cell and 'W' not in cell:
+                    x = index_col * TILE_SIZE
+                    y = index_row * TILE_SIZE
+                    cell.append('W')
+
+                    # Show the tile as watered
+                    WateredTile(
+                        pos = (x, y),
+                        surf = choice(self.watered_surfs),
+                        groups = [self.all_sprites, self.watered_sprites]
+                        )        
 
     def dry_soil(self):
         # Destroy all the watered sprites

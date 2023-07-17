@@ -1,13 +1,15 @@
 # IMPORTS
 import pygame
 from pytmx.util_pygame import load_pygame
+from random import randint
 from settings import *
+from helper import *
 from player import Player
 from overlay import Overlay
 from sprites import Interaction, GenericSprite, WaterSprite, WildflowerSprite, TreeSprite
 from transition import Transition
-from helper import *
 from soil import SoilLayer
+from sky import Rain
 
 class Level:
     def __init__(self):
@@ -24,7 +26,12 @@ class Level:
         self.soil_layer = SoilLayer(self.all_sprites)
         self.setup()
         self.overlay = Overlay(self.player)
-        self.transition = Transition(self.advance_day, self.player)      
+        self.transition = Transition(self.advance_day, self.player)
+
+        # Rain
+        self.rain = Rain(self.all_sprites)
+        self.is_raining = False
+        self.soil_layer.is_raining = self.is_raining      
 
     def setup(self):
         # TILE IMPORTS
@@ -96,8 +103,18 @@ class Level:
 
     def advance_day(self):
 
+        # Tilled soil effects
         # Watered soil dries out
-        self.soil_layer.dry_soil()       
+        self.soil_layer.dry_soil()
+
+        # Decide if it's raining now
+        self.is_raining = randint(0, 10) > 3
+        # Making sure is_raining is available in SoilLayer
+        self.soil_layer.is_raining = self.is_raining
+
+        # Water all the tilled soil if it is raining
+        if self.is_raining:
+            self.soil_layer.water_all_tiles()      
         
         # Trees grow new apples
         for tree in self.tree_sprites.sprites():
@@ -112,6 +129,11 @@ class Level:
 
         self.overlay.display()
 
+        # Rain
+        if self.is_raining:
+            self.rain.update()
+
+        # Plays the day transition animation
         if self.player.sleep:
             self.transition.play()
 
