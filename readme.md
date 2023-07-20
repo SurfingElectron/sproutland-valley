@@ -43,6 +43,7 @@ When considering player movement, if they press 2 keys at the same time (i.e. up
 - **Tiling System:** The soil tiling system (in soil.py | create_soil_tiles) currently doesn't check on the diagnonal, so there's a few graphical glitches when creating large areas of tilled soil. 
 - **Day/Night Cycle:** Currently gets darker as time passes, but the day only ends when the player goes to sleep. Add a system for automatically moving to the next day after enough time has passed?
     - In a similar vein, show a clock so the player knows what time it is in-game?
+    - Also it doesn't pause while in the shop/merchant menu
 - **Inventory:** Currently track the inventory, but there's no in-game way to see it. Some kind of display or menu so the player can see what they're carrying?
 
 ## Other Thoughts

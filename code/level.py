@@ -10,6 +10,7 @@ from overlay import Overlay
 from transition import Transition
 from soil import SoilLayer
 from sky import Nightfall, Rain
+from menu import Menu
 
 class Level:
     def __init__(self):
@@ -32,7 +33,12 @@ class Level:
         self.nightfall = Nightfall()
         self.rain = Rain(self.all_sprites)
         self.is_raining = False
-        self.soil_layer.is_raining = self.is_raining      
+        self.soil_layer.is_raining = self.is_raining
+
+        # Shop
+        self.menu = Menu(self.player, self.toggle_shop)
+        self.is_shop_active = False
+
 
     def setup(self):
         # TILE IMPORTS
@@ -47,7 +53,7 @@ class Level:
             for x, y, surf in tmx_data.get_layer_by_name(layer).tiles():
                 GenericSprite((x * TILE_SIZE, y * TILE_SIZE), surf, self.all_sprites, LAYERS['main'])
 
-        # Fence
+        # Fences
         for x, y, surf in tmx_data.get_layer_by_name('Fence').tiles():
             GenericSprite((x * TILE_SIZE, y * TILE_SIZE), surf, [self.all_sprites, self.collision_sprites], LAYERS['main'])
 
@@ -84,20 +90,32 @@ class Level:
                     collision_sprites = self.collision_sprites,
                     tree_sprites = self.tree_sprites,
                     interaction = self.interaction_sprites,
-                    soil_layer = self.soil_layer)  
+                    soil_layer = self.soil_layer,
+                    toggle_shop = self.toggle_shop
+                    )  
             if obj.name == 'Bed':
                 Interaction(
                     pos = (obj.x, obj.y), 
                     size = (obj.width, obj.height),
                     groups = self.interaction_sprites, #No all_sprites because we don't want this visible!
-                    name = obj.name)    
-
+                    name = obj.name
+                    ) 
+            if obj.name == 'Trader':
+                Interaction(
+                    pos = (obj.x, obj.y), 
+                    size = (obj.width, obj.height),
+                    groups = self.interaction_sprites, #No all_sprites because we don't want this visible!
+                    name = obj.name
+                    )    
+                
+        # Ground
         GenericSprite(
             pos = (0,0), 
             surf = pygame.image.load('../graphics/world/ground.png').convert_alpha(), 
             groups = self.all_sprites,
-            z_index = LAYERS['ground'])
-        
+            z_index = LAYERS['ground']
+            )
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
     def crop_collision(self):
         if self.soil_layer.crop_sprites:
             for crop in self.soil_layer.crop_sprites.sprites():
@@ -114,6 +132,9 @@ class Level:
     
     def player_add_item(self, item):
         self.player.inventory[item] += 1
+
+    def toggle_shop(self):
+        self.is_shop_active = not self.is_shop_active
 
     def advance_day(self):
         # Trees grow new apples
@@ -142,18 +163,27 @@ class Level:
         self.nightfall.start_color = [255, 255, 255]      
 
     def run(self, dt):
+
+        # Drawing logic
         self.display_surface.fill('black')
         self.all_sprites.custom_draw(self.player)
-        self.all_sprites.update(dt)
-        self.crop_collision()
 
+        # Updates
+        if self.is_shop_active:
+            self.menu.update()
+        else:
+        # Don't update sprites and collisions if shop menu is active    
+            self.all_sprites.update(dt)
+            self.crop_collision()
+
+        # Show the HUD
         self.overlay.display()
 
         # Rain
-        if self.is_raining:
+        if self.is_raining and not self.is_shop_active:
             self.rain.update()
 
-        # Daytime
+        # Night approaches
         self.nightfall.display(dt)
 
         # Plays the day transition animation

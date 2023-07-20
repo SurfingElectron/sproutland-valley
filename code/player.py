@@ -6,7 +6,7 @@ from timekeeper import Timer
 
 # CLASS
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, groups, collision_sprites, tree_sprites, interaction, soil_layer):
+    def __init__(self, pos, groups, collision_sprites, tree_sprites, interaction, soil_layer, toggle_shop):
         super().__init__(groups)
 
         # Graphics import / set-up
@@ -34,6 +34,7 @@ class Player(pygame.sprite.Sprite):
         self.interaction = interaction
         self.sleep = False
         self.soil_layer = soil_layer
+        self.toggle_shop = toggle_shop
 
         # Timers
         self.timers = {
@@ -43,13 +44,18 @@ class Player(pygame.sprite.Sprite):
             'seed_switch': Timer(200)
         }
 
-        # Inventory
+        # Inventories
         self.inventory = {
-            'wood':   0,
-            'apple':  0,
-            'corn':   0,
-            'tomato': 0
+            'wood':   10,
+            'apple':  10,
+            'corn':   10,
+            'tomato': 10
         }
+        self.seed_inventory = {
+            'corn': 5,
+            'tomato': 5
+        }
+        self.money = 200
 
         # Tools
         self.tools = ['axe', 'hoe', 'water']
@@ -132,13 +138,14 @@ class Player(pygame.sprite.Sprite):
                     self.seed_index = 0
                 self.selected_seed = self.seeds[self.seed_index]
 
-            # Advance day / sleep
+            # Interations with Trader or bed
             if keys[pygame.K_RETURN]:
                 collided_interation_sprite = pygame.sprite.spritecollide(self, self.interaction, False)
                 if collided_interation_sprite:
                     if collided_interation_sprite[0].name == 'Trader':
-                        pass
+                        self.toggle_shop()
                     else:
+                        # Interacting with bed, so sleep
                         self.status = 'left_idle'
                         self.sleep = True
 
@@ -209,7 +216,9 @@ class Player(pygame.sprite.Sprite):
             self.soil_layer.water_single_tile(self.target_pos)
 
     def use_seed(self):
-        self.soil_layer.plant_crop(self.target_pos, self.selected_seed)
+        if self.seed_inventory[self.selected_seed] > 0:
+            self.soil_layer.plant_crop(self.target_pos, self.selected_seed)
+            self.seed_inventory[self.selected_seed] -= 1
 
     def update(self, dt):
         self.input()
