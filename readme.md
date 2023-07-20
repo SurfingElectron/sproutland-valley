@@ -45,6 +45,9 @@ When considering player movement, if they press 2 keys at the same time (i.e. up
 ## Other Thoughts
 - **Make a plan:** With such a big project, it really showed the value of going step-by-step, thinking about what you would need in the future and building each component at a time (and testing to make sure that small part worked!).
 
+## Bugs
+- **Crop Watering** Sometimes the rain doesn't water a tile.
+
 ## Resources
 ### Documention and Guides
 - [Pygame Docs](https://www.pygame.org/docs/)

@@ -4,9 +4,9 @@ from pytmx.util_pygame import load_pygame
 from random import randint
 from settings import *
 from helper import *
+from sprites import *
 from player import Player
 from overlay import Overlay
-from sprites import Interaction, GenericSprite, WaterSprite, WildflowerSprite, TreeSprite
 from transition import Transition
 from soil import SoilLayer
 from sky import Rain
@@ -91,12 +91,25 @@ class Level:
                     groups = self.interaction_sprites, #No all_sprites because we don't want this visible!
                     name = obj.name)    
 
-
         GenericSprite(
             pos = (0,0), 
             surf = pygame.image.load('../graphics/world/ground.png').convert_alpha(), 
             groups = self.all_sprites,
             z_index = LAYERS['ground'])
+        
+    def crop_collision(self):
+        if self.soil_layer.crop_sprites:
+            for crop in self.soil_layer.crop_sprites.sprites():
+                if crop.is_harvestable and crop.rect.colliderect(self.player.hitbox):
+                    self.player_add_item(crop.crop_type)
+                    crop.kill()
+                    ParticleEffect(
+                        pos = crop.rect.topleft, 
+                        surf = crop.image, 
+                        groups = self.all_sprites, 
+                        z_index = LAYERS['main'],
+                    )
+                    self.soil_layer.grid[crop.rect.centery // TILE_SIZE][crop.rect.centerx // TILE_SIZE].remove('C')
     
     def player_add_item(self, item):
         self.player.inventory[item] += 1
@@ -128,6 +141,7 @@ class Level:
         self.display_surface.fill('black')
         self.all_sprites.custom_draw(self.player)
         self.all_sprites.update(dt)
+        self.crop_collision()
 
         self.overlay.display()
 
