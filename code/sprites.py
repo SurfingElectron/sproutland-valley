@@ -84,6 +84,9 @@ class TreeSprite(GenericSprite):
         # Linking to inventory
         self.player_inv_add = player_inv_add
 
+        # Audio
+        self.axe_sound = pygame.mixer.Sound('../audio/axe.mp3')
+
     def create_apple(self):
         for pos in self.apple_pos:
             if randint(0, 10) < 2:
@@ -98,8 +101,11 @@ class TreeSprite(GenericSprite):
                 # available here - maybe declare it as an atribute early since we use it a few times?
    
     def damage(self):
-        # Damaging the tree
+        # Damage the tree
         self.health -= 1
+
+        # Play chopping sound!
+        self.axe_sound.play()
 
         # Removing an apple
         if len(self.apple_sprites.sprites()) > 0:

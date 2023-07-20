@@ -137,5 +137,3 @@ class Menu:
                 top = top,
                 is_selected = self.index == text_index
                 )
-
-            

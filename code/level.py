@@ -29,6 +29,14 @@ class Level:
         self.overlay = Overlay(self.player)
         self.transition = Transition(self.advance_day, self.player)
 
+        # Music
+        self.bg_music = pygame.mixer.Sound('../audio/music.mp3')
+        self.bg_music.set_volume(0.5)
+
+        # Audio
+        self.success = pygame.mixer.Sound('../audio/success.wav')
+        self.success.set_volume(0.4)
+
         # Sky & Rain
         self.nightfall = Nightfall()
         self.rain = Rain(self.all_sprites)
@@ -132,6 +140,7 @@ class Level:
     
     def player_add_item(self, item):
         self.player.inventory[item] += 1
+        self.success.play()
 
     def toggle_shop(self):
         self.is_shop_active = not self.is_shop_active
@@ -163,10 +172,15 @@ class Level:
         self.nightfall.start_color = [255, 255, 255]      
 
     def run(self, dt):
+        # Play the background music
+        self.bg_music.play(loops = -1)
 
         # Drawing logic
         self.display_surface.fill('black')
         self.all_sprites.custom_draw(self.player)
+
+        # Show the HUD
+        self.overlay.display()
 
         # Updates
         if self.is_shop_active:
@@ -176,8 +190,7 @@ class Level:
             self.all_sprites.update(dt)
             self.crop_collision()
 
-        # Show the HUD
-        self.overlay.display()
+
 
         # Rain
         if self.is_raining and not self.is_shop_active:
