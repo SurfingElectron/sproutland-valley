@@ -23,7 +23,7 @@ class Level:
         self.tree_sprites = pygame.sprite.Group()
         self.interaction_sprites = pygame.sprite.Group() 
 
-        self.soil_layer = SoilLayer(self.all_sprites)
+        self.soil_layer = SoilLayer(self.all_sprites, self.collision_sprites)
         self.setup()
         self.overlay = Overlay(self.player)
         self.transition = Transition(self.advance_day, self.player)
@@ -102,25 +102,27 @@ class Level:
         self.player.inventory[item] += 1
 
     def advance_day(self):
+        # Trees grow new apples
+        for tree in self.tree_sprites.sprites():
+            for apple in tree.apple_sprites.sprites():
+                apple.kill()
+            tree.create_apple()
+
+        # Crops grow
+        self.soil_layer.update_crops()
 
         # Tilled soil effects
         # Watered soil dries out
         self.soil_layer.dry_soil()
 
         # Decide if it's raining now
-        self.is_raining = randint(0, 10) > 3
+        self.is_raining = randint(0, 10) > 7
         # Making sure is_raining is available in SoilLayer
         self.soil_layer.is_raining = self.is_raining
 
         # Water all the tilled soil if it is raining
         if self.is_raining:
             self.soil_layer.water_all_tiles()      
-        
-        # Trees grow new apples
-        for tree in self.tree_sprites.sprites():
-            for apple in tree.apple_sprites.sprites():
-                apple.kill()
-            tree.create_apple()
 
     def run(self, dt):
         self.display_surface.fill('black')

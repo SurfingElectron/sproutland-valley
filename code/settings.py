@@ -20,7 +20,7 @@ LAYERS = {
 	'soil_water': 3,
 	'rain_ground': 4,
 	'house_bottom': 5,
-	'ground_plant': 6,
+	'ground_crop': 6,
 	'main': 7,
 	'house_top': 8,
 	'fruit': 9,
@@ -39,4 +39,10 @@ PLAYER_TOOL_OFFSET = {
 	'right': Vector2(50,40),
 	'up': Vector2(0,-10),
 	'down': Vector2(0,50)
+}
+
+# CROP GROWING TIMES
+GROW_SPEED = {
+	'corn': 1,
+	'tomato': 0.7
 }

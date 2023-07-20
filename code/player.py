@@ -123,7 +123,6 @@ class Player(pygame.sprite.Sprite):
                 self.timers['seed_use'].activate()
                 self.direction = pygame.math.Vector2()
                 self.frame_index = 0
-                print('PLANT SEED')
 
             # Change seeds
             if keys[pygame.K_LSHIFT] and not self.timers['seed_switch'].active:
@@ -210,7 +209,7 @@ class Player(pygame.sprite.Sprite):
             self.soil_layer.water_single_tile(self.target_pos)
 
     def use_seed(self):
-        pass
+        self.soil_layer.plant_crop(self.target_pos, self.selected_seed)
 
     def update(self, dt):
         self.input()

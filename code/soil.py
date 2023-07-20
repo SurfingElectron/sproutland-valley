@@ -8,6 +8,7 @@ from settings import *
 # F: farmable
 # T: tilled (has been dug by hoe)
 # W: watered
+# C: crop planted/growing
 
 class SoilTile(pygame.sprite.Sprite):
     def __init__(self, pos, surf, groups):
@@ -23,13 +24,54 @@ class WateredTile(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft = pos)
         self.z_index = LAYERS['soil_water']
 
+class Crop(pygame.sprite.Sprite):
+    def __init__(self, crop_type, groups, soil_pos, is_watered):
+        super().__init__(groups)
+
+        # Set up
+        self.crop_type = crop_type
+        self.frames = import_folder(f'../graphics/produce/{crop_type}')
+        self.soil_pos = soil_pos
+        self.is_watered = is_watered
+
+        # Crop growth
+        self.age = 0
+        self.max_age = len(self.frames) - 1
+        self.grow_speed = GROW_SPEED[crop_type]
+        self.is_harvestable = False
+
+        # Sprite setup - need to bump up the position of the crop depending on its type because of how different they look
+        self.image = self.frames[self.age]
+        self.y_offset = -16 if crop_type == 'corn' else -8
+        self.rect = self.image.get_rect(midbottom = soil_pos.rect.midbottom + pygame.math.Vector2(0, self.y_offset))
+        self.z_index = LAYERS['ground_crop']
+    
+    def grow(self):
+        if self.is_watered(self.rect.center):
+            self.age += self.grow_speed
+
+            # Make the crops collidable once they've started growing
+            if int(self.age) > 0:
+                self.z_index = LAYERS['main']
+                self.hitbox = self.rect.copy().inflate(-26, -self.rect.height * 0.4)
+
+            # Check if the plants are ready for harvesting
+            if self.age >= self.max_age:
+                self.age = self.max_age
+                self.is_harvestable = True
+
+            self.image = self.frames[int(self.age)]
+            self.rect = self.image.get_rect(midbottom = self.soil_pos.rect.midbottom + pygame.math.Vector2(0, self.y_offset))
+
 class SoilLayer:
-    def __init__(self, all_sprites):
+    def __init__(self, all_sprites, collision_sprites):
         
         # Sprite Groups
         self.all_sprites = all_sprites
+        self.collision_sprites = collision_sprites
         self.soil_sprites = pygame.sprite.Group()
         self.watered_sprites = pygame.sprite.Group()
+        self.crop_sprites = pygame.sprite.Group()
 
         # Graphics
         self.soil_surfs = import_folder_dict('../graphics/soil/')
@@ -44,7 +86,7 @@ class SoilLayer:
 
         self.grid = [[[] for col in range(h_tiles)] for row in range(v_tiles)]
         
-        # Load the Tiled data, mark farmable tiles with an F
+        # Load the Tiled data, mark farmable tiles
         for x, y, _ in load_pygame('../data/map.tmx').get_layer_by_name('Farmable').tiles():
             self.grid[y][x].append('F')
 
@@ -111,7 +153,33 @@ class SoilLayer:
             for cell in row:
                 if 'W' in cell:
                     cell.remove('W')
+    
+    def is_watered(self, pos):
+        x = pos[0] // TILE_SIZE
+        y = pos[1] // TILE_SIZE
+        cell = self.grid[y][x]
+        is_watered = 'W' in cell
+        return is_watered
 
+    def plant_crop(self, target_pos, seed_type):
+        for soil_sprite in self.soil_sprites.sprites():
+            if soil_sprite.rect.collidepoint(target_pos):
+                x = soil_sprite.rect.x // TILE_SIZE
+                y = soil_sprite.rect.y // TILE_SIZE
+
+                if 'C' not in self.grid[y][x]:
+                    self.grid[y][x].append('C')
+                    Crop(
+                        crop_type = seed_type,
+                        groups = [self.all_sprites, self.crop_sprites, self.collision_sprites],
+                        soil_pos = soil_sprite,
+                        is_watered = self.is_watered
+                    )
+
+    def update_crops(self):
+        for crop in self.crop_sprites.sprites():
+            crop.grow()
+    
     def create_soil_tiles(self):
         # Gets rid of all soil tiles and redraws them
         # So that the tilled soil looks like a continuous patch and not individual tiles

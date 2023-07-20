@@ -24,3 +24,7 @@ def import_folder_dict(import_path):
         surface_dict[graphic_name] = graphic_surf
     
     return surface_dict
+
+# Convert pixel position to soil grid position - do this over and over in soil.py so let's do a function for it
+def pixel_to_grid():
+    pass

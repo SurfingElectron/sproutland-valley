@@ -77,7 +77,7 @@ class TreeSprite(GenericSprite):
         self.invul_timer = Timer(200)
 
         # Apples!
-        self.apple_surf = pygame.image.load('../graphics/fruit/apple.png')
+        self.apple_surf = pygame.image.load('../graphics/produce/apple.png')
         self.apple_pos = APPLE_POS[name]
         self.apple_sprites = pygame.sprite.Group()
         self.create_apple()
