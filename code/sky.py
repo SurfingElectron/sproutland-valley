@@ -4,6 +4,22 @@ from settings import *
 from helper import import_folder
 from sprites import GenericSprite
 
+class Nightfall:
+    def __init__(self):
+        self.display_surface = pygame.display.get_surface()
+        self.full_surf = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+        self.start_color = [255, 255, 255]
+        self.end_color = (38, 101, 189)
+
+    # Simulates day/night cycle by progressively darkening the game
+    def display(self, dt):
+        for index, value in enumerate(self.end_color):
+            if self.start_color[index] > value:
+                self.start_color[index] -= 2 * dt
+
+        self.full_surf.fill(self.start_color)
+        self.display_surface.blit(self.full_surf, (0,0), special_flags = pygame.BLEND_RGB_MULT)
+
 class Raindrop(GenericSprite):
     def __init__(self, surf, pos, is_moving, groups, z_index):
 

@@ -9,7 +9,7 @@ from player import Player
 from overlay import Overlay
 from transition import Transition
 from soil import SoilLayer
-from sky import Rain
+from sky import Nightfall, Rain
 
 class Level:
     def __init__(self):
@@ -28,7 +28,8 @@ class Level:
         self.overlay = Overlay(self.player)
         self.transition = Transition(self.advance_day, self.player)
 
-        # Rain
+        # Sky & Rain
+        self.nightfall = Nightfall()
         self.rain = Rain(self.all_sprites)
         self.is_raining = False
         self.soil_layer.is_raining = self.is_raining      
@@ -135,7 +136,10 @@ class Level:
 
         # Water all the tilled soil if it is raining
         if self.is_raining:
-            self.soil_layer.water_all_tiles()      
+            self.soil_layer.water_all_tiles()
+
+        # Reset nightfall to start values (so next morning is "bright" again)
+        self.nightfall.start_color = [255, 255, 255]      
 
     def run(self, dt):
         self.display_surface.fill('black')
@@ -148,6 +152,9 @@ class Level:
         # Rain
         if self.is_raining:
             self.rain.update()
+
+        # Daytime
+        self.nightfall.display(dt)
 
         # Plays the day transition animation
         if self.player.sleep:

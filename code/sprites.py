@@ -1,6 +1,5 @@
 # IMPORTS
 import pygame
-#from settings import LAYERS
 from settings import *
 from timekeeper import Timer
 from random import randint, choice
